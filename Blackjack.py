@@ -1,3 +1,4 @@
+import random
 def cardDeck():
     deck = []
     suits = ["Spades", "Clubs", "Hearts", "Diamonds"]
@@ -6,10 +7,15 @@ def cardDeck():
 
     for suit in range(len(suits)):
         for rank in range(len(ranks)):
-            card = [ranks[rank], suits[suit], points[rank]]  # reference: suits [0] #ranks[1]
+            card = [ranks[rank], suits[suit], points[rank]]
             deck.append(card)
     return deck
 
+def drawCard(deck):
+    selectCard = random.choice(deck)
+    deck.remove(selectCard)
+
+    return selectCard
 
 def main():
     print("Blackjack Project\n")
