@@ -37,6 +37,16 @@ def startBlackjackGame(deck):
                 print("DEALER'S SHOW CARD")
                 print(f"{dealerHand[0][0]} of {dealerHand[0][1]}")
 
+    turn = "player"
+    playerScore = choiceHitStand(deck, playerHand, turn, dealerScore, playerScore)
+
+    turn = "dealer"
+    dealerScore = choiceHitStand(deck, dealerHand, turn, dealerScore, playerScore)
+
+    print()
+    print(f"YOUR POINTS:     {playerScore}")
+    print(f"DEALER'S POINTS: {dealerScore}")
+    print()
 
 def dealCard(deck, hand, score, turn):
     selectedCard = drawCard(deck)
@@ -55,9 +65,71 @@ def aceCard(selectedCard,score, turn):
             elif aceValue == 11:
                 selectedCard[2] = 11
         elif turn == "dealer":
-            selectedCard[2] = 11 # If dealer's score is < 10 assign the value of 11
+            selectedCard[2] = 11
     elif selectedCard[0] == "Ace" and (score >= 11):
         selectedCard[2] = 1
+
+
+def choiceHitStand(deck, hand, turn, dealerScore, playerScore):
+    if turn == "player":
+        displayCards(hand, turn)
+
+        while True:
+            if playerScore <= 21:
+                command = input("\nHit or stand? (hit/stand): ")
+                if (command.lower() != "hit") and (command.lower() != "stand"):
+                    print("Not a valid command. Try again!")
+                    continue
+                else:
+                    break
+        while (command.lower() == "hit") and (playerScore <= 21):
+            playerScore = dealCard(deck, hand, playerScore, turn)
+            displayCards(hand, turn)
+            if playerScore >= 21:
+                return playerScore
+            command = input("\nHit or stand? (hit/stand): ")
+        return playerScore
+    elif turn == "dealer":
+        while (playerScore <= 21) and (dealerScore <= 17):
+            dealerScore = dealCard(deck, hand, dealerScore, turn)
+        displayCards(hand, turn)
+        return dealerScore
+
+
+def displayCards(hand, turn):
+    if turn == "player":
+        print()
+        print("YOUR CARDS:")
+    elif turn == "dealer":
+        print()
+        print("DEALER'S CARDS:")
+    for card in hand:
+        print(f"{card[0]} of {card[1]}")
+
+
+def isWinner(playerScore, dealerScore):
+    if playerScore <= 21:
+        if (dealerScore > 21) or (dealerScore < playerScore):
+            if playerScore == 21:
+                print("Blackjack!\nCongratulations!")
+            elif dealerScore > 21:
+                print("Dealer busts. You win!\nCongratulations!")
+            else:
+                print("You win!\nCongratulations!")
+
+        elif playerScore == dealerScore:
+            if playerScore == 21:
+                print("You both have Blackjack.\nYou push.")
+            else:
+                print("It's a tie.\nNo one wins")
+
+        elif playerScore < dealerScore:
+            if dealerScore == 21:
+                print("Sorry, dealer has a Blackjack.\nYou lose.")
+            else:
+                print("Sorry.\nYou lose.")
+    else:
+        print("You busted and lost.\nSorry.")
 
 
 def drawCard(deck):
