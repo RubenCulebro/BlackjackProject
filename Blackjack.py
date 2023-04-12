@@ -1,4 +1,5 @@
 import random
+import db
 
 
 def showHeader():
@@ -25,6 +26,8 @@ def startBlackjackGame(deck):
     playerScore = 0
     playerHand = []
 
+    money = playerWallet()
+
     for i in range(1, 5):
         if i % 2 != 0:
             turn = "player"
@@ -47,6 +50,8 @@ def startBlackjackGame(deck):
     print(f"YOUR POINTS:     {playerScore}")
     print(f"DEALER'S POINTS: {dealerScore}")
     print()
+
+    print(f"\nMoney: {money}")
 
 def dealCard(deck, hand, score, turn):
     selectedCard = drawCard(deck)
@@ -130,6 +135,21 @@ def isWinner(playerScore, dealerScore):
                 print("Sorry.\nYou lose.")
     else:
         print("You busted and lost.\nSorry.")
+
+
+def playerWallet():
+    money = db.readFile()
+    buyChips = 0
+    if money < 5:
+        print(f"\nYour money amount (${money}) dropped below the minimum bet ($5.0).")
+        while buyChips < 5:
+            buyChips = float(input("You must buy a minimum of 5 chips. Please enter number of chips: "))
+            db.writeFile(buyChips)
+            money = db.readFile()
+            continue
+        return money
+    else:
+        return money
 
 
 def drawCard(deck):
