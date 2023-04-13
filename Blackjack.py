@@ -64,13 +64,22 @@ def dealCard(deck, hand, score, turn):
 def aceCard(selectedCard,score, turn):
     if selectedCard[0] == "Ace" and (score < 11):
         if turn == "player":
-            aceValue = int(input("\nAce value equals 1 or 11?:"))
-            if aceValue == 1:
-                selectedCard[2] = 1
-            elif aceValue == 11:
-                selectedCard[2] = 11
+            while True:
+                try:
+                    aceValue = int(input("\nAce value equals 1 or 11?:"))
+                    if aceValue == 1:
+                        selectedCard[2] = 1
+                        break
+                    elif aceValue == 11:
+                        selectedCard[2] = 11
+                        break
+                    else:
+                        print("Invalid number, please try again.")
+                except ValueError:
+                    print("Not a valid input. Try again!")
+                    continue
         elif turn == "dealer":
-            selectedCard[2] = 11
+            selectedCard[2] = 11 # If dealer's score is < 10 assign the value of 11
     elif selectedCard[0] == "Ace" and (score >= 11):
         selectedCard[2] = 1
 
@@ -92,7 +101,13 @@ def choiceHitStand(deck, hand, turn, dealerScore, playerScore):
             displayCards(hand, turn)
             if playerScore >= 21:
                 return playerScore
-            command = input("\nHit or stand? (hit/stand): ")
+            while True:
+                command = input("\nHit or stand? (hit/stand): ")
+                if (command.lower() != "hit") and (command.lower() != "stand"):
+                    print("Not a valid command. Try again!")
+                    continue
+                else:
+                    break
         return playerScore
     elif turn == "dealer":
         while (playerScore <= 21) and (dealerScore <= 17):
@@ -143,10 +158,13 @@ def playerWallet():
     if money < 5:
         print(f"\nYour money amount (${money}) dropped below the minimum bet ($5.0).")
         while buyChips < 5:
-            buyChips = float(input("You must buy a minimum of 5 chips. Please enter number of chips: "))
+            try:
+                buyChips = float(input("You must buy a minimum of 5 chips. Please enter number of chips: "))
+            except ValueError:
+                print("Invalid input, try again.")
+                continue
             db.writeFile(buyChips)
             money = db.readFile()
-            continue
         return money
     else:
         return money
