@@ -27,6 +27,7 @@ def startBlackjackGame(deck):
     playerHand = []
 
     money = playerWallet()
+    playerBet = placeBet(money)
 
     for i in range(1, 5):
         if i % 2 != 0:
@@ -37,7 +38,7 @@ def startBlackjackGame(deck):
             dealerScore = dealCard(deck, dealerHand, dealerScore, turn)
             if i == 2:
                 print()
-                print("DEALER'S SHOW CARD")
+                print("DEALER'S SHOW CARD:")
                 print(f"{dealerHand[0][0]} of {dealerHand[0][1]}")
 
     turn = "player"
@@ -51,6 +52,7 @@ def startBlackjackGame(deck):
     print(f"DEALER'S POINTS: {dealerScore}")
     print()
 
+    money = isWinner(playerScore, dealerScore, playerBet, money)
     print(f"\nMoney: {money}")
 
 def dealCard(deck, hand, score, turn):
@@ -79,7 +81,7 @@ def aceCard(selectedCard,score, turn):
                     print("Not a valid input. Try again!")
                     continue
         elif turn == "dealer":
-            selectedCard[2] = 11 # If dealer's score is < 10 assign the value of 11
+            selectedCard[2] = 11
     elif selectedCard[0] == "Ace" and (score >= 11):
         selectedCard[2] = 1
 
@@ -127,7 +129,7 @@ def displayCards(hand, turn):
         print(f"{card[0]} of {card[1]}")
 
 
-def isWinner(playerScore, dealerScore):
+def isWinner(playerScore, dealerScore, playerBet, money):
     if playerScore <= 21:
         if (dealerScore > 21) or (dealerScore < playerScore):
             if playerScore == 21:
@@ -136,20 +138,29 @@ def isWinner(playerScore, dealerScore):
                 print("Dealer busts. You win!\nCongratulations!")
             else:
                 print("You win!\nCongratulations!")
+            money += round(playerBet * 1.5, 2)
+            db.writeFile(money)
 
         elif playerScore == dealerScore:
             if playerScore == 21:
                 print("You both have Blackjack.\nYou push.")
             else:
                 print("It's a tie.\nNo one wins")
+            db.writeFile(money)
 
         elif playerScore < dealerScore:
             if dealerScore == 21:
                 print("Sorry, dealer has a Blackjack.\nYou lose.")
             else:
                 print("Sorry.\nYou lose.")
+            money -= playerBet
+            db.writeFile(money)
+
     else:
         print("You busted and lost.\nSorry.")
+        money -= playerBet
+        db.writeFile(money)
+    return money
 
 
 def playerWallet():
@@ -170,6 +181,23 @@ def playerWallet():
         return money
 
 
+def placeBet(money):
+    while True:
+        print()
+        print(f"Money: {money}")
+        try:
+            bet = float(input("Bet amount: "))
+            if bet < 5 or bet > 1000:
+                print("Please select a bet between 5 and 1000")
+            elif bet > money:
+                print("Not a valid amount, you cannot bet more money than you have available.")
+            else:
+                return bet
+        except ValueError:
+            print("Error, please enter a valid number.")
+            continue
+
+
 def drawCard(deck):
     selectCard = random.choice(deck)
     deck.remove(selectCard)
@@ -177,11 +205,23 @@ def drawCard(deck):
 
 
 def main():
-    deck = cardDeck()
-    showHeader()
-    startBlackjackGame(deck)
+    keepPlaying = "y"
+    while keepPlaying == "y":
+        deck = cardDeck()
+        showHeader()
+        startBlackjackGame(deck)
+        while True:
+            keepPlaying = input("\nPlay again? (y/n): ")
+            if keepPlaying.lower() != "y" and keepPlaying.lower() != "n":
+                print("Please enter a valid input.")
+                continue
+            elif keepPlaying.lower() == "n":
+                print("\nCome back soon!\nBye!")
+                break
+            else:
+                break
+        print()
 
 
 if __name__ == '__main__':
     main()
-
