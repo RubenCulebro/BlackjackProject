@@ -55,6 +55,7 @@ def startBlackjackGame(deck):
     money = isWinner(playerScore, dealerScore, playerBet, money)
     print(f"\nMoney: {money}")
 
+
 def dealCard(deck, hand, score, turn):
     selectedCard = drawCard(deck)
     aceCard(selectedCard, score, turn)
@@ -206,7 +207,7 @@ def drawCard(deck):
 
 def main():
     keepPlaying = "y"
-    while keepPlaying == "y":
+    while keepPlaying.lower() == "y":
         deck = cardDeck()
         showHeader()
         startBlackjackGame(deck)
